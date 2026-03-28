@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Arnold Split Trainer</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arnold Split">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#111111">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23111111'/%3E%3Crect x='20' y='82' width='140' height='16' rx='8' fill='%231F5FBF'/%3E%3Crect x='10' y='70' width='20' height='40' rx='6' fill='%231F5FBF'/%3E%3Crect x='150' y='70' width='20' height='40' rx='6' fill='%231F5FBF'/%3E%3Crect x='35' y='62' width='14' height='56' rx='4' fill='%231F5FBF'/%3E%3Crect x='131' y='62' width='14' height='56' rx='4' fill='%231F5FBF'/%3E%3C/svg%3E">
+<script>
+  const manifestData = {
+    name: "Arnold Split Trainer", short_name: "Arnold Split", start_url: "./",
+    display: "standalone", background_color: "#111111", theme_color: "#111111",
+    icons: [{ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%23111111'/%3E%3Crect x='20' y='88' width='152' height='16' rx='8' fill='%231F5FBF'/%3E%3Crect x='10' y='74' width='22' height='44' rx='6' fill='%231F5FBF'/%3E%3Crect x='160' y='74' width='22' height='44' rx='6' fill='%231F5FBF'/%3E%3Crect x='36' y='64' width='16' height='64' rx='4' fill='%231F5FBF'/%3E%3Crect x='140' y='64' width='16' height='64' rx='4' fill='%231F5FBF'/%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" }]
+  };
+  const blob = new Blob([JSON.stringify(manifestData)], {type:'application/json'});
+  document.write(`<link rel="manifest" href="${URL.createObjectURL(blob)}">`);
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=Source+Code+Pro:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:            #111111;
+  --surface:       #1a1e24;
+  --surface2:      #222831;
+  --surface3:      #2c3340;
+  --border:        #2e3650;
+  --border-light:  #3d4a65;
+  --blue:          #1F5FBF;
+  --blue-light:    #2d74e0;
+  --blue-dim:      #163f80;
+  --blue-glow:     rgba(31,95,191,0.25);
+  --gunmetal:      #4B5563;
+  --silver:        #9CA3AF;
+  --white:         #F5F5F5;
+  --ink:           #111111;
+  --text-primary:  #F5F5F5;
+  --text-secondary:#9CA3AF;
+  --text-muted:    #4B5563;
+  --accent:        #1F5FBF;
+  --success:       #34a85a;
+  --success-bg:    rgba(52,168,90,0.12);
+  --success-border:#2d8a4a;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { height:100%; }
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(31,95,191,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(31,95,191,0.05) 0%, transparent 50%);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+}
+.screen { display:none; min-height:100vh; }
+.screen.active { display:flex; flex-direction:column; }
+
+/* ── HOME ── */
+#homeScreen { align-items:center; justify-content:flex-start; padding: env(safe-area-inset-top,20px) 20px 40px; }
+.home-header { width:100%; text-align:center; padding:48px 0 36px; position:relative; }
+.home-header::after { content:''; display:block; width:60px; height:2px; background:linear-gradient(90deg,transparent,var(--blue),transparent); margin:18px auto 0; }
+.home-title { font-family:'Barlow Condensed',sans-serif; font-size:40px; font-weight:800; color:var(--white); letter-spacing:2px; line-height:1.0; text-transform:uppercase; }
+.home-title span { color:var(--blue-light); }
+.home-subtitle { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); letter-spacing:3px; text-transform:uppercase; margin-top:8px; }
+.day-grid { width:100%; max-width:480px; display:flex; flex-direction:column; gap:12px; }
+.day-card { background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%); border:1px solid var(--border); border-radius:4px; padding:20px 22px; cursor:pointer; position:relative; overflow:hidden; transition:all 0.2s ease; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.4); }
+.day-card:hover,.day-card:active { background:linear-gradient(135deg,var(--surface2) 0%,var(--surface3) 100%); border-color:var(--blue); transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,0.5), 0 0 0 1px var(--blue-glow); }
+.day-card-num { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+.day-card-name { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:var(--white); letter-spacing:1px; line-height:1.2; text-transform:uppercase; }
+.day-card-focus { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); margin-top:5px; }
+.day-card-exercises { font-family:'Source Code Pro',monospace; font-size:9px; color:var(--gunmetal); margin-top:3px; }
+.day-card-arrow { font-size:20px; color:var(--blue-light); flex-shrink:0; margin-left:16px; }
+
+/* ── WORKOUT SCREEN ── */
+#workoutScreen { padding-bottom:120px; }
+.workout-topbar { background:linear-gradient(180deg,var(--surface) 0%,transparent 100%); padding:env(safe-area-inset-top,16px) 20px 16px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:50; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--border); }
+.back-btn { background:none; border:1px solid var(--border); color:var(--silver); width:36px; height:36px; border-radius:3px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+.back-btn:active { background:var(--surface2); }
+.topbar-day { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.topbar-meta { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); letter-spacing:1px; margin-top:2px; }
+.topbar-info { flex:1; min-width:0; }
+
+/* PROGRESS */
+.progress-wrap { padding:14px 20px 0; }
+.progress-labels { display:flex; justify-content:space-between; font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); letter-spacing:1px; margin-bottom:6px; }
+.progress-track { height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; border:1px solid var(--border); }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--blue-dim),var(--blue-light)); border-radius:3px; transition:width 0.5s cubic-bezier(0.4,0,0.2,1); box-shadow:0 0 8px rgba(31,95,191,0.5); }
+
+/* VOLUME */
+.volume-bar { background:linear-gradient(135deg,var(--blue-dim) 0%,var(--surface2) 100%); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:center; justify-content:space-between; }
+.volume-label { font-family:'Source Code Pro',monospace; font-size:9px; color:var(--silver); letter-spacing:2px; text-transform:uppercase; }
+.volume-num { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; color:var(--white); line-height:1; text-align:right; letter-spacing:1px; }
+.volume-unit { font-family:'Source Code Pro',monospace; font-size:9px; color:var(--silver); text-align:right; letter-spacing:1px; }
+
+/* EXERCISE LIST */
+.exercise-list { padding:16px 16px 0; display:flex; flex-direction:column; gap:10px; }
+.ex-card { background:linear-gradient(160deg,var(--surface) 0%,var(--surface2) 100%); border:1px solid var(--border); border-radius:4px; overflow:hidden; transition:all 0.3s ease; box-shadow:0 2px 8px rgba(0,0,0,0.3); animation:fadeIn 0.3s ease both; }
+.ex-card.completed { background:linear-gradient(160deg,#0d1410 0%,#101a14 100%); border-color:var(--success-border); opacity:0.8; }
+.ex-card.superset { border-left:3px solid var(--blue-light); }
+.ex-card.finisher  { border-left:3px solid #7a5aaa; }
+.ex-tag { font-family:'Source Code Pro',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; padding:4px 14px; border-bottom:1px solid rgba(200,146,58,0.1); }
+.ex-tag.superset { color:var(--blue-light); background:rgba(31,95,191,0.1); }
+.ex-tag.finisher  { color:#b08ac0; background:rgba(122,90,170,0.1); }
+.ex-body { padding:14px 14px 0; }
+.ex-name-row { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:4px; }
+.ex-name { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--white); letter-spacing:0.5px; line-height:1.2; text-transform:uppercase; }
+.ex-card.completed .ex-name { color:var(--success); }
+.ex-reps { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); margin-top:3px; margin-bottom:8px; }
+
+/* HOW TO section */
+.ex-howto-toggle { display:flex; align-items:center; gap:6px; background:none; border:none; cursor:pointer; padding:0; margin-bottom:10px; }
+.ex-howto-label { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--blue-light); letter-spacing:1px; text-transform:uppercase; }
+.ex-howto-chevron { font-size:10px; color:var(--blue-light); transition:transform 0.2s; }
+.ex-howto-chevron.open { transform:rotate(180deg); }
+.ex-howto-body { display:none; background:rgba(31,95,191,0.06); border:1px solid rgba(31,95,191,0.2); border-radius:3px; padding:10px 12px; margin-bottom:10px; font-size:12px; color:var(--silver); line-height:1.7; }
+.ex-howto-body.open { display:block; }
+.ex-howto-body strong { color:var(--white); font-weight:600; }
+
+/* SET ROWS */
+.sets-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+.set-row { display:flex; align-items:center; gap:8px; }
+.set-label { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); width:32px; flex-shrink:0; letter-spacing:1px; }
+.set-weight-box { flex:1; background:var(--surface3); border:1px solid var(--border); border-radius:3px; padding:0 10px; display:flex; align-items:center; height:40px; transition:all 0.25s ease; }
+.set-weight-box.logged { background:rgba(20,40,28,0.9); border-color:var(--success-border); box-shadow:inset 0 0 10px rgba(52,168,90,0.1); }
+.set-weight-input { font-family:'Source Code Pro',monospace; font-size:15px; color:var(--white); background:none; border:none; outline:none; width:100%; min-width:0; -moz-appearance:textfield; }
+.set-weight-input::-webkit-outer-spin-button,.set-weight-input::-webkit-inner-spin-button { -webkit-appearance:none; }
+.set-weight-input::placeholder { color:var(--text-muted); }
+.set-weight-box.logged .set-weight-input { color:var(--success); font-weight:600; }
+.set-unit { font-family:'Source Code Pro',monospace; font-size:10px; color:var(--silver); flex-shrink:0; margin-left:4px; }
+.set-reps-box { background:var(--surface3); border:1px solid var(--border); border-radius:3px; padding:0 8px; display:flex; align-items:center; height:40px; width:72px; flex-shrink:0; transition:all 0.25s ease; }
+.set-reps-box.logged { background:rgba(20,40,28,0.9); border-color:var(--success-border); }
+.set-reps-input { font-family:'Source Code Pro',monospace; font-size:15px; color:var(--white); background:none; border:none; outline:none; width:100%; -moz-appearance:textfield; }
+.set-reps-input::-webkit-outer-spin-button,.set-reps-input::-webkit-inner-spin-button { -webkit-appearance:none; }
+.set-reps-box.logged .set-reps-input { color:var(--success); font-weight:600; }
+.log-btn { background:var(--surface3); border:1px solid var(--border-light); color:var(--silver); font-family:'Source Code Pro',monospace; font-size:10px; letter-spacing:1px; padding:6px 12px; border-radius:2px; cursor:pointer; white-space:nowrap; transition:all 0.15s; flex-shrink:0; }
+.log-btn:active { background:var(--blue); color:var(--white); }
+.log-btn.logged-btn { background:var(--success-bg); border-color:var(--success-border); color:var(--success); }
+
+/* EXERCISE FOOTER */
+.ex-footer { display:flex; align-items:center; justify-content:flex-end; padding:10px 14px 12px; border-top:1px solid var(--border); margin-top:4px; gap:10px; }
+.swap-sm-btn { background:none; border:1px solid var(--border); color:var(--silver); font-family:'Source Code Pro',monospace; font-size:10px; letter-spacing:1px; padding:6px 12px; border-radius:2px; cursor:pointer; transition:all 0.15s; }
+.swap-sm-btn:active { border-color:var(--blue-light); color:var(--blue-light); }
+.complete-ex-btn { background:linear-gradient(135deg,var(--blue-dim),var(--blue)); border:1px solid var(--blue-light); color:var(--white); font-family:'Source Code Pro',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; padding:8px 18px; border-radius:2px; cursor:pointer; transition:all 0.2s; box-shadow:0 2px 8px rgba(31,95,191,0.2); }
+.complete-ex-btn:active { background:var(--blue-light); color:var(--white); transform:scale(0.98); }
+.complete-ex-btn.done { background:var(--success-bg); border-color:var(--success-border); color:var(--success); }
+
+/* SWAP PANEL */
+.swap-panel { margin:0 14px 12px; background:rgba(31,95,191,0.07); border:1px solid rgba(31,95,191,0.25); border-radius:3px; padding:12px; display:none; }
+.swap-panel.open { display:block; }
+.swap-panel-label { font-family:'Source Code Pro',monospace; font-size:9px; color:var(--blue-light); letter-spacing:2px; margin-bottom:6px; }
+.swap-text { font-size:12px; color:var(--silver); line-height:1.6; }
+.swap-btns { display:flex; gap:8px; margin-top:8px; }
+.swap-use-btn { background:var(--blue-glow); border:1px solid var(--blue-light); color:var(--blue-light); font-family:'Source Code Pro',monospace; font-size:9px; letter-spacing:1px; padding:5px 12px; border-radius:2px; cursor:pointer; }
+.swap-no-btn { background:none; border:1px solid var(--border); color:var(--silver); font-family:'Source Code Pro',monospace; font-size:9px; letter-spacing:1px; padding:5px 12px; border-radius:2px; cursor:pointer; }
+
+/* FINISH */
+.finish-wrap { position:fixed; bottom:0; left:0; right:0; padding:16px 20px calc(env(safe-area-inset-bottom,0px) + 16px); background:linear-gradient(0deg,var(--bg) 60%,transparent); z-index:40; }
+.finish-btn { width:100%; background:linear-gradient(135deg,var(--blue-dim) 0%,var(--blue) 100%); border:1px solid var(--blue-light); color:var(--white); font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:16px; border-radius:4px; cursor:pointer; box-shadow:0 4px 20px rgba(31,95,191,0.3); transition:all 0.2s; opacity:0.35; pointer-events:none; }
+.finish-btn.ready { opacity:1; pointer-events:all; box-shadow:0 4px 24px rgba(31,95,191,0.5); }
+.finish-btn:active { transform:scale(0.98); }
+
+/* FEEDBACK */
+#feedbackScreen { padding:env(safe-area-inset-top,20px) 20px calc(env(safe-area-inset-bottom,0px) + 40px); align-items:center; }
+.feedback-header { width:100%; display:flex; align-items:center; gap:14px; margin-bottom:28px; padding-top:8px; }
+.feedback-title { font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:800; color:var(--white); letter-spacing:1px; text-transform:uppercase; line-height:1.1; }
+.feedback-title span { color:var(--blue-light); display:block; font-size:10px; font-weight:400; font-family:'Source Code Pro',monospace; letter-spacing:2px; margin-bottom:4px; }
+.feedback-stats { width:100%; max-width:480px; display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+.stat-box { background:var(--surface); border:1px solid var(--border); border-radius:3px; padding:14px; text-align:center; }
+.stat-val { font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:700; color:var(--blue-light); line-height:1; letter-spacing:1px; }
+.stat-lbl { font-family:'Source Code Pro',monospace; font-size:9px; color:var(--silver); letter-spacing:2px; margin-top:4px; }
+.feedback-card { width:100%; max-width:480px; background:linear-gradient(160deg,var(--surface) 0%,var(--surface2) 100%); border:1px solid var(--border); border-radius:4px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.4); margin-bottom:20px; }
+.feedback-loading { display:flex; align-items:center; gap:12px; color:var(--silver); font-family:'Source Code Pro',monospace; font-size:12px; letter-spacing:1px; }
+.spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--blue-light); border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0; }
+.feedback-text { font-size:14px; color:var(--silver); line-height:1.8; display:none; }
+.feedback-text strong { color:var(--white); }
+.wood-divider { width:100%; max-width:480px; height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:4px 0; }
+.done-btn { width:100%; max-width:480px; background:linear-gradient(135deg,var(--blue-dim),var(--blue)); border:1px solid var(--blue-light); color:var(--white); font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:15px; border-radius:4px; cursor:pointer; transition:all 0.2s; margin-top:4px; }
+.done-btn:active { background:var(--blue-light); }
+
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes spin { to{transform:rotate(360deg)} }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="homeScreen">
+  <div class="home-header">
+    <div class="home-title">Arnold <span>Split</span></div>
+    <div class="home-subtitle">6-Day Program · AI Coach</div>
+  </div>
+  <div class="day-grid" id="dayGrid"></div>
+</div>
+
+<!-- WORKOUT -->
+<div class="screen" id="workoutScreen">
+  <div class="workout-topbar">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div class="topbar-info">
+      <div class="topbar-day" id="topbarDay">—</div>
+      <div class="topbar-meta" id="topbarMeta">—</div>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span id="progressText">0 of 0 exercises complete</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div class="volume-bar">
+    <div class="volume-label">Total Volume</div>
+    <div>
+      <div class="volume-num" id="volumeNum">0</div>
+      <div class="volume-unit">LBS LIFTED</div>
+    </div>
+  </div>
+  <div class="exercise-list" id="exerciseList"></div>
+  <div class="finish-wrap">
+    <button class="finish-btn" id="finishBtn" onclick="goFeedback()">Complete Workout</button>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="screen" id="feedbackScreen">
+  <div class="feedback-header">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div class="feedback-title">
+      <span>SESSION COMPLETE</span>
+      Workout<br>Feedback
+    </div>
+  </div>
+  <div class="feedback-stats" id="feedbackStats"></div>
+  <div class="wood-divider"></div>
+  <div class="feedback-card">
+    <div class="feedback-loading" id="feedbackLoading">
+      <div class="spinner"></div>
+      <span>Coach Arnold is reviewing your session...</span>
+    </div>
+    <div class="feedback-text" id="feedbackText"></div>
+  </div>
+  <button class="done-btn" onclick="goHome()">Back to Home</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// PROGRAM — no personal weights, blank start
+// ══════════════════════════════════════════════
+const PROGRAM = [
+  {
+    id:'cb1', name:'Chest and Back 1', short:'CHEST & BACK', num:'1',
+    type:'PUSH + PULL', focus:'Flat barbell · compound rows',
+    exercises:[
+      { name:'Flat Barbell Press', sets:3, reps:'5', tag:null,
+        cue:'Lie flat on bench. Grip bar just outside shoulder width. Lower to mid-chest under control, then press straight up. Keep feet flat, back slightly arched, shoulders pinned to the bench. Full lockout at the top.' },
+      { name:'Barbell Row (overhand)', sets:3, reps:'8–10', tag:null,
+        cue:'Hinge at hips to about 45°, back flat, knees soft. Pull the bar toward your lower chest, driving elbows back. Squeeze the shoulder blades at the top. Lower slowly — don\'t let the weight just drop.' },
+      { name:'DB Fly', sets:3, reps:'8–10', tag:null,
+        cue:'Flat bench, DBs above chest, slight bend in elbows. Open arms wide in a wide arc until you feel a stretch across the chest, then bring DBs back together. Think hugging a barrel. Keep the elbow angle consistent — don\'t let them straighten.' },
+      { name:'DB Pullover', sets:3, reps:'8–10', tag:null,
+        cue:'Lie across bench (upper back only), hips dropped, hold one DB with both hands above chest. Lower the DB in an arc over your head toward the floor, feel the lats stretch, then pull back up. Keep slight bend in elbows throughout.' },
+      { name:'Landmine Row (V-bar)', sets:3, reps:'8–10', tag:null,
+        cue:'Stand over the landmine bar, hinge forward, grip V-bar with both hands. Row the bar toward your lower chest, elbows flare slightly. Control the descent. Keep your chest tall and back flat — no rounding.' },
+      { name:'Landmine Single-Arm Press', sets:3, reps:'8', tag:null,
+        cue:'Stand facing the landmine, feet staggered. Press the bar up and forward at an angle, fully extending. Control the return. Keep your core tight and don\'t let your torso rotate. Work each arm separately.' },
+      { name:'Landmine Rotations', sets:3, reps:'8', tag:null,
+        cue:'Hold the end of the bar with both hands, arms extended in front. Swing the bar arc from side to side, rotating through the core. Keep arms relatively straight and hips still — the rotation comes from your torso.' },
+      { name:'Straight-Arm Lat Pulldown', sets:3, reps:'10–12', tag:null,
+        cue:'Stand at cable with rope or bar, slight forward lean, arms straight. Push the bar down by hinging at the shoulder — think pushing down and back. Keep elbows locked. Contract the lats at the bottom. Slow return.' },
+      { name:'Low-to-High Cable Fly', sets:3, reps:'12–15', tag:'superset',
+        cue:'Cable set at lowest point. Stand centered, grip handles, lean slightly forward. Drive hands up and together in an arc toward face height. Think about squeezing the upper chest. Don\'t let shoulders shrug — keep them packed down.' },
+    ]
+  },
+  {
+    id:'sa1', name:'Shoulders and Arms 1', short:'SHOULDERS & ARMS', num:'1',
+    type:'PRESS + BI/TRI', focus:'Military press · superset arms',
+    exercises:[
+      { name:'Barbell Military Press', sets:3, reps:'5', tag:null,
+        cue:'Stand with bar at collarbone level, grip just outside shoulders. Press straight up until arms lock out overhead. Lower under control back to collarbone. Keep core braced and don\'t lean back — this is a strict press.' },
+      { name:'DB Lateral Raise', sets:3, reps:'12–15', tag:null,
+        cue:'Stand tall, DBs at sides, slight bend in elbows. Raise arms out to the sides until parallel with the floor — no higher. Lead with the pinky side (internally rotate slightly). Lower slowly, 3–4 seconds down. No swinging.' },
+      { name:'Arnold Press', sets:3, reps:'8–10', tag:null,
+        cue:'Start with DBs at shoulder height, palms facing you. As you press up, rotate palms outward so they face forward at the top. Reverse on the way down. Full range of motion — get a stretch at the bottom and lockout at the top.' },
+      { name:'Barbell Curl', sets:3, reps:'8–10', tag:'superset',
+        cue:'Stand with bar at hip height, underhand grip shoulder-width. Curl the bar up to your shoulders by hinging at the elbow only — don\'t swing. Squeeze at the top, lower slowly. Keep elbows pinned to your sides.' },
+      { name:'Skullcrushers (EZ-bar)', sets:3, reps:'8–10', tag:'superset',
+        cue:'Lie on bench, EZ-bar extended above chest. Keeping upper arms vertical, hinge at the elbows to lower the bar toward your forehead. Extend back to lockout. Don\'t let elbows flare wide. Control the weight the whole way.' },
+      { name:'Landmine Row-to-Press (explosive)', sets:3, reps:'8 ea', tag:null,
+        cue:'Single arm. Row the landmine bar to shoulder height, then explosively press it forward and up. Two-part movement — row first, press second. Be deliberate on the row, controlled power on the press. Keep your core locked.' },
+      { name:'Cable Curl (straight bar)', sets:3, reps:'10–12', tag:'superset',
+        cue:'Low cable pulley, underhand grip on straight bar. Curl up to your shoulders. Hold for a count at the top, squeeze, then lower slowly. Elbows stay at your sides. The cable keeps constant tension throughout the range.' },
+      { name:'V-Bar Pushdown', sets:3, reps:'10–12', tag:'superset',
+        cue:'High cable, V-bar attachment, overhand grip. Start with forearms roughly parallel to the floor. Push the bar down until arms are fully extended at your sides. Squeeze triceps hard at the bottom. Control the return — don\'t let it snap back up.' },
+      { name:'Cable Rear Delt', sets:3, reps:'10', tag:'superset',
+        cue:'Cable set at face height, cross your arms and grab the opposite cable handles. Pull straight back, opening the arms wide, squeezing the rear delts and upper back. Hold briefly at full extension. Keep head neutral.' },
+      { name:'Rope Face Pull', sets:3, reps:'12–15', tag:'superset',
+        cue:'Cable at upper chest height, rope attachment. Pull the rope to your face, splitting the rope ends apart as you pull. Elbows should end up high and wide, hands near your ears. Targets rear delts and external rotators. Do not round forward.' },
+      { name:'EZ-Bar Curl Drop Set', sets:2, reps:'12–15', tag:'finisher',
+        cue:'Start at working weight, do 12–15 reps, immediately drop to a lighter weight and go again without rest. Squeeze every rep. The goal is to fully exhaust the bicep. Don\'t cheat — if form breaks, the set is done.' },
+      { name:'V-Bar Pushdown Drop Set', sets:2, reps:'12–15', tag:'finisher',
+        cue:'Same as standard pushdown but performed as a drop set. Full extension on every rep, constant tension. Drop the weight when you can no longer lock out cleanly. No rest between the two weights.' },
+    ]
+  },
+  {
+    id:'lg1', name:'Legs 1', short:'LEGS', num:'1',
+    type:'SQUAT + HINGE', focus:'Front squat · RDL primary',
+    exercises:[
+      { name:'Front Squat', sets:3, reps:'5', tag:null,
+        cue:'Bar rests on front delts, elbows up high (clean grip or crossed arms). Squat straight down, keeping elbows up and torso upright. Hit depth (thighs at least parallel), then drive straight up. Front squats punish a forward lean — keep that chest tall.' },
+      { name:'Romanian Deadlift', sets:3, reps:'6', tag:null,
+        cue:'Stand tall, bar in hands, slight bend in knees. Hinge at the hips — push your hips back — lowering the bar along your legs while keeping your back perfectly flat. Feel a stretch in your hamstrings. Drive hips forward to come back up. This is NOT a squat.' },
+      { name:'Leg Curl', sets:3, reps:'12–15', tag:null,
+        cue:'Lie face down on the leg curl machine. Curl heels toward your glutes. Pause at the top, squeeze your hamstrings. Lower slowly and under control. Don\'t let your hips rise off the pad as you curl.' },
+      { name:'Leg Extension', sets:3, reps:'15–20', tag:null,
+        cue:'Sit on machine, pad on lower shins. Extend legs to full lockout. Hold briefly at the top to squeeze the quads. Lower slowly — 3 seconds down. Don\'t lock out hard and fast. Feel the quad working the whole way.' },
+      { name:'Landmine Reverse Lunge', sets:3, reps:'10 ea', tag:null,
+        cue:'Hold the landmine bar at shoulder height. Step one foot back into a lunge, lowering your back knee toward the floor. Drive through your front heel to come back up. Keep your torso upright and front knee tracking over your toes. Alternate legs or do all reps on one side.' },
+      { name:'Seated Calf Raise', sets:3, reps:'15–20', tag:null,
+        cue:'Sit with the pad on your lower quads just above the knee. Rise up on your toes as high as possible. Hold at the top for a full second, then lower all the way down and get a full stretch at the bottom. Full range, full pause. No bouncing.' },
+      { name:'Hanging Leg Raise', sets:3, reps:'12–15', tag:null,
+        cue:'Hang from a pull-up bar. Raise your legs (straight or bent at knee) up toward your chest or until parallel to the floor. Control the descent — don\'t swing or let momentum do the work. Keep your shoulders active, not passive hanging.' },
+    ]
+  },
+  {
+    id:'cb2', name:'Chest and Back 2', short:'CHEST & BACK', num:'2',
+    type:'INCLINE + MACHINES', focus:'Incline DB · Hammer Strength',
+    exercises:[
+      { name:'Incline DB Press', sets:3, reps:'8–12', tag:null,
+        cue:'Bench at 30–45°. Press DBs from shoulder level up to arms fully extended. Don\'t let them crash together at the top — stop just before. Lower slowly, elbows at about 45° to body (not flared wide). Get a full stretch at the bottom.' },
+      { name:'Pull-ups', sets:3, reps:'6–8', tag:null,
+        cue:'Hang from bar, overhand grip just outside shoulders. Pull your chest toward the bar by driving elbows down and back. Chin clears the bar at the top. Lower slowly — full extension at the bottom. No kipping. If you can\'t get the reps, use a band or do negatives.' },
+      { name:'Flat DB Press (slow eccentric)', sets:3, reps:'8–10', tag:'superset',
+        cue:'Same as flat press but take 3–4 seconds to lower the DBs. The slow eccentric is the point — it creates more muscle damage and growth. Press up at normal speed. You\'ll use less weight than a regular press. That\'s fine.' },
+      { name:'DB Pullover', sets:3, reps:'8–10', tag:'superset',
+        cue:'Across the bench, one DB held with both hands above chest. Lower in an arc over your head toward the floor until you feel a full lat and chest stretch. Pull back to start. Keep hips dropped and elbows soft. Great chest-to-lat stretch movement.' },
+      { name:'Low-to-High Cable Fly', sets:3, reps:'12–15', tag:'superset',
+        cue:'Cable at floor level, one handle each side. Sweep arms up and together in a wide arc toward face height. Lean slightly forward. Focus on the upper chest. Don\'t let shoulders creep up — keep them locked down throughout.' },
+      { name:'Straight-Arm Lat Pulldown', sets:3, reps:'12–15', tag:null,
+        cue:'High cable, rope or bar. Arms straight, slight forward lean. Push bar down and back by contracting lats — think about pushing your arms into your hips. Don\'t bend elbows. Slow return. This isolates the lats without bicep help.' },
+      { name:'Hammer Strength Row', sets:3, reps:'8–10', tag:null,
+        cue:'Chest against the pad, grip handles. Row the weight back by driving elbows behind you. Full range — let your shoulders stretch forward at the start, then squeeze blades together at the top. Control the weight on the way out.' },
+      { name:'Face Pull', sets:3, reps:'12–15', tag:null,
+        cue:'Rope at face height. Pull toward your face splitting the rope, elbows high and wide. Externally rotate your shoulders — hands end up beside your ears. This is a shoulder health movement as much as a muscle one. Don\'t rush it.' },
+      { name:'Cable Crunch', sets:3, reps:'12', tag:null,
+        cue:'Kneel facing a high cable with rope. Grip rope behind head. Crunch down by flexing your spine — curl your chest toward your knees. The movement is a crunch, not a hip hinge. Keep your hips stationary. Hold the contraction for a count.' },
+      { name:'Pec Deck (stretch emphasis)', sets:3, reps:'12–15', tag:null,
+        cue:'Sit tall, arms on pads at roughly 90°. Bring the pads together in front of your chest, squeezing hard. Then open all the way back — really get that chest stretch. Pause for a full second at the open position. Don\'t slam the weight stack.' },
+    ]
+  },
+  {
+    id:'sa2', name:'Shoulders and Arms 2', short:'SHOULDERS & ARMS', num:'2',
+    type:'DELT + TRIPLE SUPERSET', focus:'Egyptian raise · triple superset arms',
+    exercises:[
+      { name:'Egyptian Lateral Raise', sets:3, reps:'10', tag:null,
+        cue:'Hold a fixed object with one hand for support, lean slightly away. With the other hand raise a DB laterally to shoulder height. The lean isolates the medial delt — you won\'t be able to cheat with body English. Slow and controlled. Full drop between reps.' },
+      { name:'Rear Delt Cables', sets:3, reps:'12', tag:null,
+        cue:'Low cable, one handle. Lean forward slightly or stand upright. Pull the handle in a rear arc, keeping your arm nearly straight, squeezing the rear delt at full extension. This is a small movement — don\'t try to overload it. Feel the muscle.' },
+      { name:'Arnold Press (full ROM)', sets:3, reps:'8–10', tag:null,
+        cue:'Full range of motion version. Start palms facing in at chin, press up rotating to palms out, fully lock out overhead. Lower back slowly reversing the rotation. Pause at the bottom to feel the stretch. The rotation recruits more of the delt.' },
+      { name:'Cable Curl', sets:3, reps:'8–10', tag:'superset',
+        cue:'Low cable, straight bar or rope. The cable maintains tension even at the top of the curl — unlike a dumbbell. Curl up fully, squeeze hard at the top, then lower slowly. Keep elbows at sides. Great pump movement for the bicep peak.' },
+      { name:'V-Bar Pushdown', sets:3, reps:'10–12', tag:'superset',
+        cue:'High cable, V-bar. Push down to full lockout. Really squeeze the tricep at the bottom before releasing. Don\'t let your elbows drift forward. Upper arms stay at your sides. The V-bar hits the outer tricep head.' },
+      { name:'EZ-Bar Curl', sets:3, reps:'8–10', tag:'superset',
+        cue:'EZ-bar takes some strain off the wrists compared to a straight bar. Curl from full extension to chin height. Elbows stay pinned. Don\'t swing the bar up — if you\'re swinging, go lighter. Squeeze at the top, 2 seconds down.' },
+      { name:'Close Grip Bench', sets:3, reps:'10–12', tag:'superset',
+        cue:'Grip the bar shoulder-width or slightly inside. Lower the bar to your lower chest with elbows tucked in close to your sides. Press back up. This is a tricep movement — if your elbows are flaring, you\'re turning it into a chest press.' },
+      { name:'DB Preacher Curl', sets:3, reps:'8–10', tag:'superset',
+        cue:'Use the preacher bench, one arm at a time with a DB. The pad prevents any cheating. Curl from full extension — get the full stretch at the bottom — up to peak contraction. The stretch position is where the growth happens. Don\'t shortcut it.' },
+      { name:'Barbell Overhead Press', sets:3, reps:'8–10', tag:'superset',
+        cue:'Bar behind head or in front. If behind the head, only if you have the shoulder mobility — front of head is safer. Press to lockout, lower slowly. Keep your core tight. At this point in the session this is a pump/burnout movement, not a max effort.' },
+      { name:'EZ-Bar Curl (finisher)', sets:3, reps:'15', tag:'finisher',
+        cue:'Lighter weight, higher reps. The goal is to get blood into the muscle and push through the burn. Don\'t cheat the reps — keep elbows pinned and get full range. This is a finisher, not a max lift. Own the burn.' },
+      { name:'V-Bar Pushdown (finisher)', sets:3, reps:'15', tag:'finisher',
+        cue:'Lighter than your working weight. Full lockout every rep. Push through the burn in the tricep — that\'s the point. If you can\'t get full lockout, drop the weight. Quality reps at high volume.' },
+      { name:'Cable Crunch', sets:1, reps:'AMRAP', tag:null,
+        cue:'Go to failure. Rope at high cable, kneel, crunch down engaging the abs fully. Count your reps, try to beat it next session. AMRAP means as many reps as possible — push until you can\'t hold proper form.' },
+    ]
+  },
+  {
+    id:'lg2', name:'Legs 2', short:'LEGS', num:'2',
+    type:'HINGE + SPLIT SQUAT', focus:'RDL · Bulgarian · glute drive',
+    exercises:[
+      { name:'Romanian Deadlift', sets:3, reps:'6', tag:null,
+        cue:'The primary strength movement today. Hinge hard at the hips, bar drags down your legs, back stays flat. Drive hips forward to come up. Heavier than Legs 1 if possible — this is your main loaded hinge. Focus on hamstring stretch at the bottom.' },
+      { name:'Bulgarian Split Squat', sets:3, reps:'10 ea', tag:null,
+        cue:'Rear foot elevated on bench, front foot stepped out far enough so your front shin stays vertical when you lower. Drop your back knee toward the floor. Drive through your front heel to come back up. This will expose any leg strength imbalances. It\'s supposed to be uncomfortable.' },
+      { name:'Glute Drive', sets:3, reps:'10', tag:null,
+        cue:'Upper back on bench, bar across hips (use a pad). Feet flat, hip-width apart. Drive your hips up until your body forms a straight line from knees to shoulders. Squeeze glutes hard at the top — hold for a count. Lower slowly. Don\'t hyperextend your lower back at the top.' },
+      { name:'Heel Elevated Goblet Squat', sets:3, reps:'10', tag:null,
+        cue:'Heels on small plates or a wedge, hold a DB vertically at your chest. Squat deep — the heel elevation helps with ankle mobility and keeps the torso upright. Get below parallel if possible. This hits the quads hard. Pause briefly at the bottom.' },
+      { name:'Abductor', sets:3, reps:'12', tag:null,
+        cue:'Sit in the abductor machine, pads on the outside of your knees. Push knees apart against the resistance, hold for a count at full abduction, return slowly. Don\'t slam the weight. This hits the glute medius — important for knee tracking and hip stability.' },
+      { name:'Leg Curl', sets:3, reps:'12–15', tag:null,
+        cue:'Lying leg curl. Curl heels to your glutes, squeeze hard at the top. Lower in 3 seconds. Don\'t let your hips lift off the pad. Full range — full extension at the bottom. By this point in the session your hamstrings should be torched from the RDLs.' },
+      { name:'LP Machine Calf Raise', sets:3, reps:'15–20', tag:null,
+        cue:'On the leg press machine, push the platform with just the balls of your feet. Full plantar flexion at the top — toes pointed. Full dorsiflexion at the bottom — stretch the calf completely. Hold a second at top and bottom. Calves respond to full range and volume.' },
+      { name:'Cable Crunches', sets:3, reps:'12–15', tag:null,
+        cue:'Kneeling at high cable, rope behind head. Crunch your spine — pull ribs toward hips. Hips stay stationary. Hold the contraction, slow return. Don\'t just nod your head — the movement should come from the abs flexing your entire torso.' },
+    ]
+  },
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let currentDayIdx = 0;
+let loggedSets  = {};
+let completedEx = {};
+let swapData    = {};
+let totalVolume = 0;
+
+// ══════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════
+function renderHome() {
+  document.getElementById('dayGrid').innerHTML = PROGRAM.map((d,i) => `
+    <div class="day-card" onclick="startDay(${i})" style="animation-delay:${i*0.06}s">
+      <div class="day-card-left">
+        <div class="day-card-num">Day ${i+1}</div>
+        <div class="day-card-name">${d.name}</div>
+        <div class="day-card-focus">${d.focus}</div>
+        <div class="day-card-exercises">${d.exercises.length} exercises · ${d.exercises.reduce((s,e)=>s+e.sets,0)} sets</div>
+      </div>
+      <div class="day-card-arrow">›</div>
+    </div>`).join('');
+}
+function goHome() { show('homeScreen'); }
+
+// ══════════════════════════════════════════════
+// START DAY
+// ══════════════════════════════════════════════
+function startDay(idx) {
+  currentDayIdx = idx;
+  loggedSets = {}; completedEx = {}; swapData = {};
+  totalVolume = 0;
+  document.getElementById('volumeNum').textContent = '0';
+  const day = PROGRAM[idx];
+  document.getElementById('topbarDay').textContent  = day.name;
+  document.getElementById('topbarMeta').textContent = day.type + ' · ' + day.exercises.length + ' EXERCISES';
+  renderExercises(day);
+  updateProgress(day);
+  show('workoutScreen');
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════
+// RENDER EXERCISES
+// ══════════════════════════════════════════════
+function renderExercises(day) {
+  document.getElementById('exerciseList').innerHTML = day.exercises.map((ex, ei) => {
+    const exKey      = `${day.id}_${ei}`;
+    const tagHtml    = ex.tag === 'superset' ? `<div class="ex-tag superset">SUPERSET</div>`
+                     : ex.tag === 'finisher'  ? `<div class="ex-tag finisher">FINISHER · DROP SET</div>` : '';
+    const cardClass  = ex.tag ? ' ' + ex.tag : '';
+    const repDefault = getRepDefault(ex.reps);
+
+    const setRows = Array.from({length: ex.sets}, (_,si) => {
+      const setKey = `${exKey}_${si}`;
+      return `
+        <div class="set-row">
+          <div class="set-label">SET ${si+1}</div>
+          <div class="set-weight-box" id="box_${setKey}">
+            <input class="set-weight-input" id="input_${setKey}"
+              type="number" inputmode="decimal" step="2.5"
+              placeholder="lbs" onfocus="this.select()">
+            <div class="set-unit">lbs</div>
+          </div>
+          <div class="set-reps-box" id="repsbox_${setKey}">
+            <input class="set-reps-input" id="repsinput_${setKey}"
+              type="number" inputmode="numeric" step="1"
+              value="${repDefault}" placeholder="${repDefault}"
+              onfocus="this.select()">
+            <div class="set-unit">reps</div>
+          </div>
+          <button class="log-btn" id="logbtn_${setKey}" onclick="logSet('${exKey}','${setKey}',${si})">LOG</button>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="ex-card${cardClass}" id="card_${exKey}" style="animation-delay:${ei*0.04}s">
+        ${tagHtml}
+        <div class="ex-body">
+          <div class="ex-name" id="exname_${exKey}">${ex.name}</div>
+          <div class="ex-reps">${ex.sets} sets · ${ex.reps} reps</div>
+          <button class="ex-howto-toggle" onclick="toggleHowTo('${exKey}')">
+            <span class="ex-howto-label">▶ HOW TO</span>
+            <span class="ex-howto-chevron" id="chevron_${exKey}">▾</span>
+          </button>
+          <div class="ex-howto-body" id="howto_${exKey}">${ex.cue}</div>
+          <div class="sets-grid">${setRows}</div>
+        </div>
+        <div class="swap-panel" id="swappanel_${exKey}">
+          <div class="swap-panel-label">⇄ TRAINER SUGGESTION</div>
+          <div class="swap-text" id="swaptext_${exKey}"></div>
+          <div class="swap-btns">
+            <button class="swap-use-btn" id="swapuse_${exKey}" onclick="acceptSwap('${exKey}',${ei})">USE THIS</button>
+            <button class="swap-no-btn" onclick="closeSwap('${exKey}')">KEEP ORIGINAL</button>
+          </div>
+        </div>
+        <div class="ex-footer">
+          <button class="swap-sm-btn" onclick="requestSwap('${exKey}',${ei})">⇄ ALTERNATE</button>
+          <button class="complete-ex-btn" id="compbtn_${exKey}" onclick="completeExercise('${exKey}',${ei})">COMPLETE</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleHowTo(exKey) {
+  const body    = document.getElementById(`howto_${exKey}`);
+  const chevron = document.getElementById(`chevron_${exKey}`);
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════
+// LOGGING
+// ══════════════════════════════════════════════
+function logSet(exKey, setKey, si) {
+  if (loggedSets[setKey]) return;
+  const inputEl  = document.getElementById(`input_${setKey}`);
+  const repsEl   = document.getElementById(`repsinput_${setKey}`);
+  const weight   = parseFloat(inputEl?.value) || 0;
+  const reps     = parseInt(repsEl?.value) || 1;
+  loggedSets[setKey] = weight;
+  document.getElementById(`box_${setKey}`)?.classList.add('logged');
+  document.getElementById(`repsbox_${setKey}`)?.classList.add('logged');
+  const btn = document.getElementById(`logbtn_${setKey}`);
+  if (btn) { btn.classList.add('logged-btn'); btn.textContent = '✓'; }
+  const prev = totalVolume;
+  totalVolume += weight * reps;
+  animateVolume(prev, totalVolume);
+}
+
+function animateVolume(from, to) {
+  const el = document.getElementById('volumeNum');
+  if (!el) return;
+  const dur = 600, start = performance.now();
+  (function tick(now) {
+    const p = Math.min((now-start)/dur, 1);
+    const ease = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(from + (to-from)*ease).toLocaleString();
+    if (p < 1) requestAnimationFrame(tick);
+  })(performance.now());
+}
+
+function completeExercise(exKey, ei) {
+  completedEx[exKey] = true;
+  document.getElementById(`card_${exKey}`)?.classList.add('completed');
+  const btn = document.getElementById(`compbtn_${exKey}`);
+  if (btn) { btn.classList.add('done'); btn.textContent = '✓ DONE'; }
+  updateProgress(PROGRAM[currentDayIdx]);
+}
+
+function updateProgress(day) {
+  const total = day.exercises.length;
+  const done  = Object.keys(completedEx).filter(k=>k.startsWith(day.id)).length;
+  const pct   = total > 0 ? Math.round(done/total*100) : 0;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressText').textContent  = `${done} of ${total} exercises complete`;
+  document.getElementById('progressPct').textContent   = pct+'%';
+  document.getElementById('finishBtn').classList.toggle('ready', done === total && total > 0);
+}
+
+function getRepDefault(repsStr) {
+  const clean = repsStr.replace(/[–—-]/g,'-').replace(/[^0-9-]/g,' ').trim();
+  const nums  = clean.split(/\s+/).map(Number).filter(n=>!isNaN(n)&&n>0);
+  return nums.length ? nums[0] : 10;
+}
+
+// ══════════════════════════════════════════════
+// SWAP / ALTERNATE
+// ══════════════════════════════════════════════
+async function requestSwap(exKey, ei) {
+  const day = PROGRAM[currentDayIdx];
+  const ex  = day.exercises[ei];
+  const btn = document.querySelector(`#card_${exKey} .swap-sm-btn`);
+  if (btn) { btn.textContent='⇄ ...'; btn.disabled=true; }
+
+  try {
+    const res  = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:200,
+        system: buildSystem(),
+        messages:[{role:'user', content:`Suggest one alternate exercise for "${ex.name}" (${ex.sets}×${ex.reps}, targets: ${day.type}). Respond ONLY as JSON, no markdown: {"altName":"<name>","reason":"<1-2 sentences: why good swap and starting weight>"}`}]})
+    });
+    const data = await res.json();
+    const raw  = data.content?.[0]?.text || '{}';
+    let parsed = {};
+    try { parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); } catch(e) { parsed={altName:null,reason:raw}; }
+    swapData[exKey] = { text:parsed.reason||raw, altName:parsed.altName||null, accepted:false };
+  } catch(e) {
+    swapData[exKey] = { text:'Could not reach trainer. Try again.', altName:null, accepted:false };
+  }
+
+  if (btn) { btn.textContent='⇄ ALTERNATE'; btn.disabled=false; }
+  const panel  = document.getElementById(`swappanel_${exKey}`);
+  const textEl = document.getElementById(`swaptext_${exKey}`);
+  const useBtn = document.getElementById(`swapuse_${exKey}`);
+  if (panel && textEl) {
+    textEl.textContent = swapData[exKey].text;
+    if (useBtn) useBtn.style.display = swapData[exKey].altName ? '' : 'none';
+    panel.classList.add('open');
+  }
+}
+
+function acceptSwap(exKey, ei) {
+  const sw = swapData[exKey];
+  if (!sw?.altName) return;
+  sw.accepted = true;
+  const nameEl = document.getElementById(`exname_${exKey}`);
+  if (nameEl) nameEl.textContent = sw.altName;
+  closeSwap(exKey);
+}
+function closeSwap(exKey) {
+  document.getElementById(`swappanel_${exKey}`)?.classList.remove('open');
+}
+
+// ══════════════════════════════════════════════
+// FEEDBACK
+// ══════════════════════════════════════════════
+async function goFeedback() {
+  const day = PROGRAM[currentDayIdx];
+  const completedNames = day.exercises.map((ex,ei)=>completedEx[`${day.id}_${ei}`]?ex.name:null).filter(Boolean);
+  const loggedCount = Object.values(loggedSets).filter(v=>v>0).length;
+  const totalVol = document.getElementById('volumeNum')?.textContent || '0';
+  const swaps = Object.values(swapData).filter(v=>v.accepted).map(v=>v.altName);
+
+  document.getElementById('feedbackStats').innerHTML = `
+    <div class="stat-box"><div class="stat-val">${day.exercises.length}</div><div class="stat-lbl">EXERCISES</div></div>
+    <div class="stat-box"><div class="stat-val">${loggedCount}</div><div class="stat-lbl">SETS LOGGED</div></div>
+    <div class="stat-box" style="grid-column:span 2"><div class="stat-val" style="font-size:28px">${totalVol}</div><div class="stat-lbl">LBS TOTAL VOLUME</div></div>`;
+
+  show('feedbackScreen');
+  document.getElementById('feedbackLoading').style.display = 'flex';
+  document.getElementById('feedbackText').style.display = 'none';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:600,
+        system: buildSystem(),
+        messages:[{role:'user', content:`User just finished ${day.name} (${day.type}).
+Exercises completed: ${completedNames.join(', ')||'none marked'}
+Sets logged: ${loggedCount}
+Total volume: ${totalVol} lbs
+Swaps: ${swaps.length?swaps.join(', '):'none'}
+Program: ${day.exercises.map(e=>`${e.name} ${e.sets}×${e.reps}`).join(', ')}
+
+Give direct post-workout feedback in 3–4 short paragraphs: what they did well, one thing to improve, a specific weight target for next session on their main lift. Encouraging but straight-talking. No fluff.`}]})
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'Great session. Keep showing up.';
+    document.getElementById('feedbackLoading').style.display = 'none';
+    const el = document.getElementById('feedbackText');
+    el.style.display = 'block';
+    el.innerHTML = '<p>' + text.replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
+  } catch(e) {
+    document.getElementById('feedbackLoading').style.display = 'none';
+    const el = document.getElementById('feedbackText');
+    el.style.display = 'block';
+    el.textContent = 'Could not load feedback. Great work finishing the session.';
+  }
+}
+
+function buildSystem() {
+  return `You are Coach Arnold, a direct and knowledgeable personal trainer. You work with athletes of varying experience levels. You give specific, actionable advice. Speak plainly — no filler, no generic motivation. When recommending weights, give a range appropriate for a beginner-to-intermediate lifter. When suggesting swaps, name the exercise and a starting weight range.`;
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+renderHome();
+</script>
+</body>
+</html>
